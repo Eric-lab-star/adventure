@@ -3,21 +3,23 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 )
 
 func main() {
-	f, err := os.ReadFile("gopher.json")
+	r, err := os.Open("gopher.json")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print("failed to open file")
+		os.Exit(1)
 	}
-	data := Story{}
-	err = json.Unmarshal(f, &data)
+	d := json.NewDecoder(r)
+	story := Story{}
+	err = d.Decode(&story)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print("failed to decode json file")
+		os.Exit(1)
 	}
-	fmt.Printf("%+v\n", data["intro"])
+	fmt.Printf("%+v\n", story)
 
 }
 
