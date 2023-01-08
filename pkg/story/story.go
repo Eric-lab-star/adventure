@@ -2,10 +2,14 @@ package story
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"net/http"
+	"os"
+	"text/template"
 )
 
-func JsontoStory(r io.Reader) (Story, error) {
+func JsonDecoder(r io.Reader) (Story, error) {
 	story := Story{}
 	decoder := json.NewDecoder(r)
 	err := decoder.Decode(&story)
@@ -28,4 +32,21 @@ type Chapter struct {
 type Option struct {
 	Text    string `json:"text"`
 	Chapter string `json:"arc"`
+}
+
+func NewHandler(story Story) http.Handler {
+	return handler{story}
+}
+
+type handler struct {
+	story Story
+}
+
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("../static/template.gohtml"))
+	err := tmpl.Execute(w, h.story["intro"])
+	if err != nil {
+		fmt.Println("exetue err")
+		os.Exit(1)
+	}
 }
