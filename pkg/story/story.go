@@ -44,8 +44,14 @@ func WithTemplate(t *template.Template) HandlerOption {
 	}
 }
 
+func WithPathFn(pathFn func(r *http.Request) string) HandlerOption {
+	return func(h *handler) {
+		h.path = pathFn
+	}
+}
+
 func NewHandler(story Story, opts ...HandlerOption) http.Handler {
-	h := handler{story, defaultTmpl}
+	h := handler{story, defaultTmpl, defaultPath}
 	for _, opt := range opts {
 		opt(&h)
 	}
@@ -55,18 +61,23 @@ func NewHandler(story Story, opts ...HandlerOption) http.Handler {
 type handler struct {
 	story Story
 	tmpl  *template.Template
+	path  func(r *http.Request) string
 }
 
 func init() {
 	defaultTmpl = template.Must(template.ParseFiles("../static/template.gohtml"))
 }
 
-func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func defaultPath(r *http.Request) string {
 	path := strings.TrimSpace(r.URL.Path)
 	if path == "/" || path == "" {
 		path = "/intro"
 	}
+	return path
+}
 
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := h.path(r)
 	if chapter, ok := h.story[path[1:]]; ok {
 		err := h.tmpl.Execute(w, chapter)
 		if err != nil {
