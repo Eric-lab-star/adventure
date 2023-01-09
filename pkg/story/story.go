@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
+	"strings"
 	"text/template"
 )
 
@@ -42,11 +42,26 @@ type handler struct {
 	story Story
 }
 
+var tmpl *template.Template
+
+func init() {
+	tmpl = template.Must(template.ParseFiles("../static/template.gohtml"))
+}
+
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("../static/template.gohtml"))
-	err := tmpl.Execute(w, h.story["intro"])
-	if err != nil {
-		fmt.Println("exetue err")
-		os.Exit(1)
+	path := strings.Trim(r.URL.Path, " ")
+	if path == "/" || path == "" {
+		path = "/intro"
 	}
+	chapter, ok := h.story[path[1:]]
+	if ok {
+		err := tmpl.Execute(w, chapter)
+		if err != nil {
+			fmt.Printf("tmpl.execute error:\n%v\n", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+	http.Error(w, "Page not found", http.StatusNotFound)
+
 }
