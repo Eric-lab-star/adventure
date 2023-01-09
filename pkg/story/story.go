@@ -53,15 +53,17 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if path == "/" || path == "" {
 		path = "/intro"
 	}
-	chapter, ok := h.story[path[1:]]
-	if ok {
+
+	if chapter, ok := h.story[path[1:]]; ok {
 		err := tmpl.Execute(w, chapter)
 		if err != nil {
 			fmt.Printf("tmpl.execute error:\n%v\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
+
 		}
+		return
 	}
+
 	http.Error(w, "Page not found", http.StatusNotFound)
 
 }
