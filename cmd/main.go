@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"text/template"
 
 	"log"
 	"net/http"
@@ -25,7 +26,8 @@ func main() {
 	}
 
 	log.SetFlags(log.Ltime)
+	temp := template.Must(template.New("").Parse("hello"))
 	log.Print("listening to http://localhost:8080")
-	log.Fatal(http.ListenAndServe("localhost:8080", story.NewHandler(data, nil)))
+	log.Fatal(http.ListenAndServe("localhost:8080", story.NewHandler(data, story.WithTemplate(temp))))
 
 }

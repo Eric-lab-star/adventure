@@ -36,14 +36,20 @@ type Option struct {
 
 var defaultTmpl *template.Template
 
-/*
-if t is not provided default template will be used
-*/
-func NewHandler(story Story, t *template.Template) http.Handler {
-	if t == nil {
-		t = defaultTmpl
+type HandlerOption func(h *handler)
+
+func WithTemplate(t *template.Template) HandlerOption {
+	return func(h *handler) {
+		h.tmpl = t
 	}
-	return handler{story, t}
+}
+
+func NewHandler(story Story, opts ...HandlerOption) http.Handler {
+	h := handler{story, defaultTmpl}
+	for _, opt := range opts {
+		opt(&h)
+	}
+	return h
 }
 
 type handler struct {
@@ -56,7 +62,7 @@ func init() {
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := strings.Trim(r.URL.Path, " ")
+	path := strings.TrimSpace(r.URL.Path)
 	if path == "/" || path == "" {
 		path = "/intro"
 	}
