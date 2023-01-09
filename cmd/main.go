@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"text/template"
 
 	"log"
 	"net/http"
@@ -13,8 +12,14 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 
-	json, err := os.Open("../gopher.json")
+	if port == "" {
+		port = "8080"
+		log.Printf("defaulting to port %s", port)
+	}
+
+	json, err := os.Open("gopher.json")
 	if err != nil {
 		fmt.Print("failed to open file\n")
 		os.Exit(1)
@@ -26,8 +31,8 @@ func main() {
 	}
 
 	log.SetFlags(log.Ltime)
-	temp := template.Must(template.New("").Parse("hello"))
-	log.Print("listening to http://localhost:8080")
-	log.Fatal(http.ListenAndServe("localhost:8080", story.NewHandler(data, story.WithTemplate(temp))))
+
+	log.Print("listening to port 8080")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), story.NewHandler(data)))
 
 }

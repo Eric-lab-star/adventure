@@ -1,0 +1,3 @@
+runtime: go119
+
+main: ./cmd

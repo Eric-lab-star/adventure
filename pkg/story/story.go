@@ -65,7 +65,8 @@ type handler struct {
 }
 
 func init() {
-	defaultTmpl = template.Must(template.ParseFiles("../static/template.gohtml"))
+
+	defaultTmpl = template.Must(template.ParseFiles("public/template.gohtml"))
 }
 
 func defaultPath(r *http.Request) string {
