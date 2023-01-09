@@ -26,6 +26,6 @@ func main() {
 
 	log.SetFlags(log.Ltime)
 	log.Print("listening to http://localhost:8080")
-	log.Fatal(http.ListenAndServe("localhost:8080", story.NewHandler(data)))
+	log.Fatal(http.ListenAndServe("localhost:8080", story.NewHandler(data, nil)))
 
 }

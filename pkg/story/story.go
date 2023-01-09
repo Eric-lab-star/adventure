@@ -34,18 +34,25 @@ type Option struct {
 	Chapter string `json:"arc"`
 }
 
-func NewHandler(story Story) http.Handler {
-	return handler{story}
+var defaultTmpl *template.Template
+
+/*
+if t is not provided default template will be used
+*/
+func NewHandler(story Story, t *template.Template) http.Handler {
+	if t == nil {
+		t = defaultTmpl
+	}
+	return handler{story, t}
 }
 
 type handler struct {
 	story Story
+	tmpl  *template.Template
 }
 
-var tmpl *template.Template
-
 func init() {
-	tmpl = template.Must(template.ParseFiles("../static/template.gohtml"))
+	defaultTmpl = template.Must(template.ParseFiles("../static/template.gohtml"))
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +62,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if chapter, ok := h.story[path[1:]]; ok {
-		err := tmpl.Execute(w, chapter)
+		err := h.tmpl.Execute(w, chapter)
 		if err != nil {
 			fmt.Printf("tmpl.execute error:\n%v\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

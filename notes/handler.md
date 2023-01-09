@@ -34,7 +34,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-2.  http.Handlefunc을 만들고 ListenAndServe에는 nil을 넣어준다.
+2. http.Handlefunc을 만들고 ListenAndServe에는 nil을 넣어준다.
 
 ```go
 func chapter(data story.Chapter) http.HandlerFunc {
